@@ -1,35 +1,6 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 21.06.2024 15:13:04
--- Design Name: 
--- Module Name: inverter - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
+use IEEE.NUMERIC_STD.ALL; -- Include library for unsigned and to_integer functions
 
 entity inverter is
   generic (
@@ -51,28 +22,25 @@ end inverter;
 
 architecture Behavioral of inverter is
 signal i : integer;
--- assing ready from master to slave 
 begin
 
     s_axis_ready <= m_axis_ready;
     
     valid_data: process (axi_clk) 
-      begin
+    begin
         if rising_edge (axi_clk) then
             m_axis_valid <= s_axis_valid;
         end if;
-      end process valid_data;
+    end process valid_data;
      
-     
-    
-    data_pass : process 
-      begin
+    data_pass : process (axi_clk)
+    begin
         if rising_edge (axi_clk) then
             if s_axis_valid = '1' and m_axis_ready = '1' then
-                for i  in 0 to data_width/8 -1 loop
-                    m_axis_data(i*8+7 downto i*8) <= s_axis_data(i*8+7 downto i*8);
+                for i in 0 to data_width/8 - 1 loop
+                    m_axis_data(i*8 + 7 downto i*8) <= std_logic_vector(to_unsigned(255- to_integer(unsigned(s_axis_data(i*8 + 7 downto i*8))), 8));
                 end loop;
             end if;
         end if;
-      end process data_pass;
+    end process data_pass;
 end Behavioral;
